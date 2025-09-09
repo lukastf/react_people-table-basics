@@ -52,18 +52,11 @@ const NotFoundPage = () => <h1 className="title">Page not found</h1>;
 // ----- PersonLink -----
 interface PersonLinkProps {
   person?: Person;
-  people?: Person[];
 }
 
-const PersonLink = ({ person, people }: PersonLinkProps) => {
+const PersonLink = ({ person }: PersonLinkProps) => {
   if (!person) {
     return <span>-</span>;
-  }
-
-  const found = people?.find(p => p.name === person.name);
-
-  if (!found) {
-    return <span>{person.name}</span>;
   }
 
   const className = person.sex === 'f' ? 'has-text-danger' : '';
@@ -101,6 +94,15 @@ const PeopleTable = ({ people, selectedSlug, onSelect }: PeopleTableProps) => (
       {people.map(person => {
         const isSelected = person.slug === selectedSlug;
 
+        // 🔎 lookup dos pais
+        const motherObj = person.mother
+          ? people.find(p => p.name === person.mother)
+          : undefined;
+
+        const fatherObj = person.father
+          ? people.find(p => p.name === person.father)
+          : undefined;
+
         return (
           <tr
             key={person.slug}
@@ -109,16 +111,36 @@ const PeopleTable = ({ people, selectedSlug, onSelect }: PeopleTableProps) => (
             onClick={() => onSelect(person.slug)}
           >
             <td>
-              <PersonLink person={person} people={people} />
+              <PersonLink person={person} />
             </td>
             <td>{person.sex}</td>
             <td>{person.born}</td>
             <td>{person.died}</td>
+
+            {/* mãe */}
             <td>
-              <PersonLink person={person.mother} people={people} />
+              {person.mother ? (
+                motherObj ? (
+                  <PersonLink person={motherObj} />
+                ) : (
+                  person.mother
+                )
+              ) : (
+                '-'
+              )}
             </td>
+
+            {/* pai */}
             <td>
-              <PersonLink person={person.father} people={people} />
+              {person.father ? (
+                fatherObj ? (
+                  <PersonLink person={fatherObj} />
+                ) : (
+                  person.father
+                )
+              ) : (
+                '-'
+              )}
             </td>
           </tr>
         );
@@ -133,7 +155,6 @@ const PeoplePage = () => {
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [selected, setSelected] = useState<string | null>(slug || null);
 
   useEffect(() => {
     setLoading(true);
@@ -165,8 +186,8 @@ const PeoplePage = () => {
           {!loading && !error && people.length > 0 && (
             <PeopleTable
               people={people}
-              selectedSlug={selected}
-              onSelect={setSelected}
+              selectedSlug={slug || null} // ✅ highlight sempre reflete a URL
+              onSelect={() => {}} // clique não precisa mudar o estado, rota já cuida
             />
           )}
         </div>
