@@ -26,6 +26,7 @@ const Navbar = () => (
       <div className="navbar-brand">
         <NavLink
           to="/"
+          end // ✅ CORREÇÃO CRÍTICA ADICIONADA
           className={({ isActive }) =>
             `navbar-item ${isActive ? 'has-background-grey-lighter' : ''}`
           }
